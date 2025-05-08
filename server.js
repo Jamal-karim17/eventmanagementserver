@@ -94,19 +94,22 @@ app.post('/api/login', async (req, res) => {
 });
 
 /* ------------------- EVENTS ------------------- */
-app.get('/api/events', verifyToken, (req, res) => {
+// ✅ PUBLIC: Fetch all events
+app.get('/api/events', (req, res) => {
   db.query('SELECT * FROM events', (err, results) => {
     if (err) return res.status(500).send({ message: 'Database error', error: err.message });
     res.json(results);
   });
 });
 
-app.get('/api/events/:id', verifyToken, (req, res) => {
+// ✅ PUBLIC: Fetch event by ID
+app.get('/api/events/:id', (req, res) => {
   db.query('SELECT * FROM events WHERE id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).send({ message: 'Database error', error: err.message });
     res.json(results[0]);
   });
 });
+
 
 app.post('/api/events', verifyToken, (req, res) => {
   const { name, location, date, capacity } = req.body;
@@ -151,15 +154,18 @@ app.get('/api/attendees/:id', verifyToken, (req, res) => {
   });
 });
 
-app.post('/api/attendees', verifyToken, (req, res) => {
+app.post('/api/attendees', (req, res) => {
   const { name, email, phone, id_card, event_id } = req.body;
-  db.query('INSERT INTO attendees (name, email, phone, id_card, event_id) VALUES (?, ?, ?, ?, ?)',
+  db.query(
+    'INSERT INTO attendees (name, email, phone, id_card, event_id) VALUES (?, ?, ?, ?, ?)',
     [name, email, phone, id_card, event_id],
     (err, results) => {
       if (err) return res.status(500).send({ message: 'Database error', error: err.message });
       res.json({ message: 'Attendee added', id: results.insertId });
-    });
+    }
+  );
 });
+
 
 app.put('/api/attendees/:id', verifyToken, (req, res) => {
   const { name, email, phone, id_card, event_id } = req.body;
